@@ -331,10 +331,12 @@ const Index = () => {
             </>
           ) : (
             <>
-              {/* Documentation Section */}
-              <section className="animate-fade-in">
-                <DocumentationViewer />
-              </section>
+              {/* Documentation Section - Only for non-authenticated users */}
+              {!user && (
+                <section className="animate-fade-in">
+                  <DocumentationViewer />
+                </section>
+              )}
 
               {/* Upload Section */}
               <section className="animate-fade-in">

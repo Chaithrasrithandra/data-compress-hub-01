@@ -33,6 +33,13 @@ export const Navigation = ({ user, onLogout, onOpenAuth }: NavigationProps) => {
             {user ? (
               <>
                 <NavLink
+                  to="/"
+                  className="text-foreground hover:text-primary transition-colors"
+                  activeClassName="text-primary font-medium"
+                >
+                  Home
+                </NavLink>
+                <NavLink
                   to="/dashboard"
                   className="text-foreground hover:text-primary transition-colors"
                   activeClassName="text-primary font-medium"

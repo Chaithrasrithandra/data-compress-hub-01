@@ -1,1 +1,4 @@
 project_id = "pqnvxzfivsyixbslzsne"
+
+[functions.compression-assistant]
+verify_jwt = false

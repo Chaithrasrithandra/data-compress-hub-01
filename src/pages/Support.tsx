@@ -68,7 +68,7 @@ const Support = () => {
               </CardHeader>
               <CardContent>
                 <Button variant="outline" className="w-full" asChild>
-                  <a href="mailto:support@ultrapress.com">
+                  <a href="mailto:chaithrasrithandra3@gmail.com">
                     Send Email
                   </a>
                 </Button>
@@ -80,14 +80,16 @@ const Support = () => {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
-                <CardTitle>Live Chat</CardTitle>
+                <CardTitle>Schedule Demo</CardTitle>
                 <CardDescription>
-                  Available 9AM - 6PM EST
+                  Book a personalized demo
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  Start Chat
+                <Button variant="outline" className="w-full" asChild>
+                  <a href="mailto:chaithrasrithandra3@gmail.com?subject=Schedule Demo Request">
+                    Request Demo
+                  </a>
                 </Button>
               </CardContent>
             </Card>
@@ -99,12 +101,12 @@ const Support = () => {
                 </div>
                 <CardTitle>Phone Support</CardTitle>
                 <CardDescription>
-                  Mon-Fri 9AM - 6PM EST
+                  Direct phone assistance
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button variant="outline" className="w-full" asChild>
-                  <a href="tel:+1-800-123-4567">
+                  <a href="tel:9492842513">
                     Call Us
                   </a>
                 </Button>
@@ -125,10 +127,12 @@ const Support = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Comprehensive guides and API references
+                    Huffman coding & compression algorithms
                   </p>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    View Docs
+                  <Button variant="ghost" size="sm" className="w-full" asChild>
+                    <a href="https://en.wikipedia.org/wiki/Huffman_coding" target="_blank" rel="noopener noreferrer">
+                      View Docs
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -142,10 +146,12 @@ const Support = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Step-by-step video guides
+                    Learn compression algorithms visually
                   </p>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    Watch Videos
+                  <Button variant="ghost" size="sm" className="w-full" asChild>
+                    <a href="https://www.youtube.com/results?search_query=huffman+coding+tutorial" target="_blank" rel="noopener noreferrer">
+                      Watch Videos
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -159,10 +165,12 @@ const Support = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Tips, tricks, and best practices
+                    Data compression techniques & best practices
                   </p>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    Read Blog
+                  <Button variant="ghost" size="sm" className="w-full" asChild>
+                    <a href="https://dev.to/t/compression" target="_blank" rel="noopener noreferrer">
+                      Read Blog
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -176,10 +184,12 @@ const Support = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Connect with other users
+                    Discuss with compression enthusiasts
                   </p>
-                  <Button variant="ghost" size="sm" className="w-full">
-                    Join Forum
+                  <Button variant="ghost" size="sm" className="w-full" asChild>
+                    <a href="https://stackoverflow.com/questions/tagged/data-compression" target="_blank" rel="noopener noreferrer">
+                      Join Forum
+                    </a>
                   </Button>
                 </CardContent>
               </Card>
@@ -301,12 +311,14 @@ const Support = () => {
             </CardHeader>
             <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
-                <a href="mailto:support@ultrapress.com">
+                <a href="mailto:chaithrasrithandra3@gmail.com">
                   Contact Support
                 </a>
               </Button>
-              <Button size="lg" variant="outline">
-                Schedule a Call
+              <Button size="lg" variant="outline" asChild>
+                <a href="tel:9492842513">
+                  Call Us Now
+                </a>
               </Button>
             </CardContent>
           </Card>

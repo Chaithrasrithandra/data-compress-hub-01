@@ -8,6 +8,9 @@ import { AnalysisDashboard } from "@/components/AnalysisDashboard";
 import { CompressionHistory } from "@/components/CompressionHistory";
 import { CompressionStats } from "@/components/CompressionStats";
 import { Navigation } from "@/components/Navigation";
+import { AIAssistant } from "@/components/AIAssistant";
+import { LiveCompressionChart } from "@/components/LiveCompressionChart";
+import { DocumentationViewer } from "@/components/DocumentationViewer";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -320,11 +323,19 @@ const Index = () => {
                 <CompressionStats />
               </section>
               <section className="animate-fade-in">
+                <LiveCompressionChart />
+              </section>
+              <section className="animate-fade-in">
                 <CompressionHistory key={historyKey} />
               </section>
             </>
           ) : (
             <>
+              {/* Documentation Section */}
+              <section className="animate-fade-in">
+                <DocumentationViewer />
+              </section>
+
               {/* Upload Section */}
               <section className="animate-fade-in">
                 <FileUpload
@@ -344,6 +355,12 @@ const Index = () => {
                   <section className="animate-fade-in">
                     <AnalysisDashboard data={compressionData} />
                   </section>
+                  
+                  {user && (
+                    <section className="animate-fade-in">
+                      <LiveCompressionChart />
+                    </section>
+                  )}
                 </>
               )}
             </>
@@ -696,6 +713,9 @@ const Index = () => {
           </div>
         </div>
       </footer>
+      
+      {/* AI Assistant Floating Button */}
+      <AIAssistant />
     </div>
   );
 };

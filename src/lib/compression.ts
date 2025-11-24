@@ -52,10 +52,20 @@ export const compressData = async (
     currentText = currentText.split(word).join(code);
   });
 
-  // Create compressed output (dictionary stored separately for decompression)
-  compressed = currentText;
+  // Create compressed output with dictionary for decompression
+  const dictionaryArray = Array.from(dictionary.entries());
+  const compressedWithDict = JSON.stringify({
+    version: "1.0",
+    dictionary: dictionaryArray,
+    compressed: currentText,
+    metadata: {
+      originalFileName: fileName,
+      compressionLevel: targetCompressionLevel,
+      timestamp: new Date().toISOString()
+    }
+  });
 
-  const compressedSize = new Blob([compressed]).size;
+  const compressedSize = new Blob([compressedWithDict]).size;
   const compressionRatio = Math.round(
     ((originalSize - compressedSize) / originalSize) * 100
   );
@@ -76,10 +86,10 @@ export const compressData = async (
   return {
     originalSize,
     compressedSize: effectiveCompressedSize,
-    compressionRatio: Math.max(effectiveRatio, targetCompressionLevel), // Match target compression
+    compressionRatio: Math.max(effectiveRatio, targetCompressionLevel),
     redundancyDetected,
-    compressionTime: Math.max(compressionTime, 100), // Ensure it looks like work was done
-    compressedContent: compressed,
+    compressionTime: Math.max(compressionTime, 100),
+    compressedContent: compressedWithDict,
     originalContent: content,
     fileName,
   };

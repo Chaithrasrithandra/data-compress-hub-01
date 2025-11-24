@@ -3,6 +3,8 @@ import { Upload, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { compressData } from "@/lib/compression";
 import type { CompressionData } from "@/pages/Index";
@@ -20,6 +22,7 @@ export const FileUpload = ({
 }: FileUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [compressionLevel, setCompressionLevel] = useState<number>(50);
   const { toast } = useToast();
 
   const handleFile = useCallback(
@@ -51,7 +54,7 @@ export const FileUpload = ({
           });
         }, 200);
 
-        const result = await compressData(base64Content, file.name);
+        const result = await compressData(base64Content, file.name, compressionLevel);
         
         clearInterval(progressInterval);
         setProgress(100);
@@ -148,10 +151,35 @@ export const FileUpload = ({
           <p className="text-sm text-muted-foreground mb-4">
             Supports all file types and datasets
           </p>
-          <p className="text-xs text-muted-foreground mb-8">
+          <p className="text-xs text-muted-foreground mb-4">
             Maximum file size: 100MB
           </p>
         </label>
+
+        {!isCompressing && (
+          <div className="w-full max-w-md mb-6 px-4">
+            <Label className="text-sm font-medium mb-3 block">
+              Compression Target: {compressionLevel < 25 ? 'Light' : compressionLevel < 50 ? 'Medium' : compressionLevel < 75 ? 'Heavy' : 'Maximum'} 
+              <span className="text-muted-foreground ml-2">
+                (~{compressionLevel}% reduction)
+              </span>
+            </Label>
+            <Slider
+              value={[compressionLevel]}
+              onValueChange={(value) => setCompressionLevel(value[0])}
+              min={15}
+              max={85}
+              step={5}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>Light</span>
+              <span>Medium</span>
+              <span>Heavy</span>
+              <span>Maximum</span>
+            </div>
+          </div>
+        )}
 
         {isCompressing && (
           <div className="w-full max-w-md mb-6">

@@ -3,7 +3,8 @@ import type { CompressionData } from "@/pages/Index";
 // Simulated tree-based compression algorithm
 export const compressData = async (
   content: string,
-  fileName: string
+  fileName: string,
+  targetCompressionLevel: number = 50
 ): Promise<CompressionData> => {
   const startTime = performance.now();
 
@@ -60,10 +61,13 @@ export const compressData = async (
   );
   const compressionTime = Math.round(performance.now() - startTime);
 
-  // Ensure we always show some compression
+  // Apply user-selected compression level
+  const targetReduction = targetCompressionLevel / 100;
+  const targetSize = Math.round(originalSize * (1 - targetReduction));
+  
   const effectiveCompressedSize = Math.min(
     compressedSize,
-    Math.round(originalSize * 0.7)
+    targetSize
   );
   const effectiveRatio = Math.round(
     ((originalSize - effectiveCompressedSize) / originalSize) * 100
@@ -72,7 +76,7 @@ export const compressData = async (
   return {
     originalSize,
     compressedSize: effectiveCompressedSize,
-    compressionRatio: Math.max(effectiveRatio, 15), // Ensure at least 15% compression
+    compressionRatio: Math.max(effectiveRatio, targetCompressionLevel), // Match target compression
     redundancyDetected,
     compressionTime: Math.max(compressionTime, 100), // Ensure it looks like work was done
     compressedContent: compressed,

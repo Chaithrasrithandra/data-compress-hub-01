@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Create from "./pages/Create";
 import Tools from "./pages/Tools";
 import NotFound from "./pages/NotFound";
+import LiveChat from "./components/LiveChat";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <LiveChat />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />

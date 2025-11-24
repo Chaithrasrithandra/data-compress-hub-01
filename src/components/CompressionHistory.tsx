@@ -67,8 +67,8 @@ export const CompressionHistory = () => {
 
   const handleDownload = (item: HistoryItem) => {
     try {
-      // Decode base64 content back to binary
-      const binaryString = atob(item.compressed_content);
+      // Use the original content for download since compression is simulated
+      const binaryString = atob(item.original_content);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
@@ -77,16 +77,21 @@ export const CompressionHistory = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `compressed_${item.file_name}`;
+      a.download = item.file_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download complete",
+        description: `Downloaded ${item.file_name}`,
+      });
     } catch (error) {
       console.error("Error downloading file:", error);
       toast({
         title: "Error",
-        description: "Failed to download file",
+        description: "Failed to download file. Please try again.",
         variant: "destructive",
       });
     }

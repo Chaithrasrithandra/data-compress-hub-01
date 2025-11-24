@@ -148,11 +148,8 @@ export const FileUpload = ({
               ? "Compressing your file..."
               : "Drop your file here or click to upload"}
           </p>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-sm text-muted-foreground mb-6">
             Supports all file types and datasets
-          </p>
-          <p className="text-xs text-muted-foreground mb-4">
-            Maximum file size: 100MB
           </p>
         </label>
 

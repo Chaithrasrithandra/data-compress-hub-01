@@ -9,11 +9,15 @@ interface CompressionResultsProps {
 
 export const CompressionResults = ({ data }: CompressionResultsProps) => {
   const handleDownload = () => {
-    const blob = new Blob([data.compressedContent], { type: "text/plain" });
+    // Download the compressed file with dictionary
+    const blob = new Blob([data.compressedContent], { 
+      type: "application/json" 
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `compressed_${data.fileName}`;
+    const fileNameWithoutExt = data.fileName.replace(/\.[^/.]+$/, "");
+    a.download = `${fileNameWithoutExt}.compressed.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

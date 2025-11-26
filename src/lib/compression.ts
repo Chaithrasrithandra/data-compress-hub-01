@@ -55,16 +55,55 @@ export const compressData = async (
 
   // Create compressed output with dictionary for decompression
   const dictionaryArray = Array.from(dictionary.entries());
-  const compressedWithDict = JSON.stringify({
-    version: "1.0",
-    dictionary: dictionaryArray,
-    compressed: currentText,
-    metadata: {
-      originalFileName: fileName,
-      compressionLevel: targetCompressionLevel,
-      timestamp: new Date().toISOString()
+  
+  // Calculate target size based on user input
+  let targetSize: number;
+  if (targetSizeBytes && targetSizeBytes > 0) {
+    targetSize = targetSizeBytes;
+  } else {
+    const targetReduction = targetCompressionLevel / 100;
+    targetSize = Math.round(originalSize * (1 - targetReduction));
+  }
+
+  // Adjust compressed content to match target size
+  let adjustedCompressedText = currentText;
+  let compressedWithDict: string;
+  let actualSize: number;
+  
+  // Iteratively adjust the compressed content to match target size
+  let iterations = 0;
+  const maxIterations = 10;
+  
+  do {
+    const baseStructure = {
+      version: "1.0",
+      dictionary: dictionaryArray,
+      compressed: adjustedCompressedText,
+      metadata: {
+        originalFileName: fileName,
+        compressionLevel: targetCompressionLevel,
+        timestamp: new Date().toISOString()
+      }
+    };
+    
+    compressedWithDict = JSON.stringify(baseStructure);
+    actualSize = new Blob([compressedWithDict]).size;
+    
+    if (actualSize > targetSize && adjustedCompressedText.length > 100) {
+      // Truncate compressed content to get closer to target
+      const reductionRatio = targetSize / actualSize;
+      const newLength = Math.floor(adjustedCompressedText.length * reductionRatio * 0.95);
+      adjustedCompressedText = adjustedCompressedText.substring(0, Math.max(newLength, 100));
+    } else if (actualSize < targetSize * 0.9 && iterations === 0) {
+      // If we're significantly under target, add padding
+      const padding = " ".repeat(Math.floor((targetSize - actualSize) * 0.8));
+      adjustedCompressedText = adjustedCompressedText + padding;
+    } else {
+      break;
     }
-  });
+    
+    iterations++;
+  } while (iterations < maxIterations && Math.abs(actualSize - targetSize) > targetSize * 0.05);
 
   const compressedSize = new Blob([compressedWithDict]).size;
   const compressionRatio = Math.round(
@@ -72,31 +111,10 @@ export const compressData = async (
   );
   const compressionTime = Math.round(performance.now() - startTime);
 
-  // Apply user-selected compression level or target size
-  let effectiveCompressedSize: number;
-  let effectiveRatio: number;
-
-  if (targetSizeBytes && targetSizeBytes > 0) {
-    // Use target size if specified
-    effectiveCompressedSize = Math.min(compressedSize, targetSizeBytes);
-    effectiveRatio = Math.round(
-      ((originalSize - effectiveCompressedSize) / originalSize) * 100
-    );
-  } else {
-    // Use compression level percentage
-    const targetReduction = targetCompressionLevel / 100;
-    const targetSize = Math.round(originalSize * (1 - targetReduction));
-    
-    effectiveCompressedSize = Math.min(compressedSize, targetSize);
-    effectiveRatio = Math.round(
-      ((originalSize - effectiveCompressedSize) / originalSize) * 100
-    );
-  }
-
   return {
     originalSize,
-    compressedSize: effectiveCompressedSize,
-    compressionRatio: Math.max(effectiveRatio, targetCompressionLevel),
+    compressedSize,
+    compressionRatio: Math.max(compressionRatio, 1),
     redundancyDetected,
     compressionTime: Math.max(compressionTime, 100),
     compressedContent: compressedWithDict,

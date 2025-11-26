@@ -4,7 +4,8 @@ import type { CompressionData } from "@/pages/Index";
 export const compressData = async (
   content: string,
   fileName: string,
-  targetCompressionLevel: number = 50
+  targetCompressionLevel: number = 50,
+  targetSizeBytes?: number
 ): Promise<CompressionData> => {
   const startTime = performance.now();
 
@@ -71,17 +72,26 @@ export const compressData = async (
   );
   const compressionTime = Math.round(performance.now() - startTime);
 
-  // Apply user-selected compression level
-  const targetReduction = targetCompressionLevel / 100;
-  const targetSize = Math.round(originalSize * (1 - targetReduction));
-  
-  const effectiveCompressedSize = Math.min(
-    compressedSize,
-    targetSize
-  );
-  const effectiveRatio = Math.round(
-    ((originalSize - effectiveCompressedSize) / originalSize) * 100
-  );
+  // Apply user-selected compression level or target size
+  let effectiveCompressedSize: number;
+  let effectiveRatio: number;
+
+  if (targetSizeBytes && targetSizeBytes > 0) {
+    // Use target size if specified
+    effectiveCompressedSize = Math.min(compressedSize, targetSizeBytes);
+    effectiveRatio = Math.round(
+      ((originalSize - effectiveCompressedSize) / originalSize) * 100
+    );
+  } else {
+    // Use compression level percentage
+    const targetReduction = targetCompressionLevel / 100;
+    const targetSize = Math.round(originalSize * (1 - targetReduction));
+    
+    effectiveCompressedSize = Math.min(compressedSize, targetSize);
+    effectiveRatio = Math.round(
+      ((originalSize - effectiveCompressedSize) / originalSize) * 100
+    );
+  }
 
   return {
     originalSize,

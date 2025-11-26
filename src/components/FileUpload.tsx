@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { compressData } from "@/lib/compression";
 import type { CompressionData } from "@/pages/Index";
@@ -23,6 +25,9 @@ export const FileUpload = ({
   const [dragActive, setDragActive] = useState(false);
   const [progress, setProgress] = useState(0);
   const [compressionLevel, setCompressionLevel] = useState<number>(50);
+  const [compressionMode, setCompressionMode] = useState<"percentage" | "size">("percentage");
+  const [targetSizeValue, setTargetSizeValue] = useState<string>("");
+  const [targetSizeUnit, setTargetSizeUnit] = useState<"KB" | "MB">("KB");
   const { toast } = useToast();
 
   const handleFile = useCallback(
@@ -54,7 +59,23 @@ export const FileUpload = ({
           });
         }, 200);
 
-        const result = await compressData(base64Content, file.name, compressionLevel);
+        // Calculate target size in bytes if size mode is selected
+        let targetSizeBytes: number | undefined;
+        if (compressionMode === "size" && targetSizeValue) {
+          const sizeValue = parseFloat(targetSizeValue);
+          if (!isNaN(sizeValue) && sizeValue > 0) {
+            targetSizeBytes = targetSizeUnit === "KB" 
+              ? sizeValue * 1024 
+              : sizeValue * 1024 * 1024;
+          }
+        }
+
+        const result = await compressData(
+          base64Content, 
+          file.name, 
+          compressionLevel,
+          targetSizeBytes
+        );
         
         clearInterval(progressInterval);
         setProgress(100);
@@ -154,27 +175,74 @@ export const FileUpload = ({
         </label>
 
         {!isCompressing && (
-          <div className="w-full max-w-md mb-6 px-4">
-            <Label className="text-sm font-medium mb-3 block">
-              Compression Target: {compressionLevel < 25 ? 'Light' : compressionLevel < 50 ? 'Medium' : compressionLevel < 75 ? 'Heavy' : 'Maximum'} 
-              <span className="text-muted-foreground ml-2">
-                (~{compressionLevel}% reduction)
-              </span>
-            </Label>
-            <Slider
-              value={[compressionLevel]}
-              onValueChange={(value) => setCompressionLevel(value[0])}
-              min={15}
-              max={85}
-              step={5}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-              <span>Light</span>
-              <span>Medium</span>
-              <span>Heavy</span>
-              <span>Maximum</span>
-            </div>
+          <div className="w-full max-w-md mb-6 px-4 space-y-4">
+            <RadioGroup 
+              value={compressionMode} 
+              onValueChange={(value) => setCompressionMode(value as "percentage" | "size")}
+              className="flex gap-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="percentage" id="percentage" />
+                <Label htmlFor="percentage" className="cursor-pointer">Compression Level</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="size" id="size" />
+                <Label htmlFor="size" className="cursor-pointer">Target Size</Label>
+              </div>
+            </RadioGroup>
+
+            {compressionMode === "percentage" ? (
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Compression Target: {compressionLevel < 25 ? 'Light' : compressionLevel < 50 ? 'Medium' : compressionLevel < 75 ? 'Heavy' : 'Maximum'} 
+                  <span className="text-muted-foreground ml-2">
+                    (~{compressionLevel}% reduction)
+                  </span>
+                </Label>
+                <Slider
+                  value={[compressionLevel]}
+                  onValueChange={(value) => setCompressionLevel(value[0])}
+                  min={15}
+                  max={85}
+                  step={5}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>Light</span>
+                  <span>Medium</span>
+                  <span>Heavy</span>
+                  <span>Maximum</span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium block">
+                  Target Compressed Size
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Enter size"
+                    value={targetSizeValue}
+                    onChange={(e) => setTargetSizeValue(e.target.value)}
+                    min="0.1"
+                    step="0.1"
+                    className="flex-1"
+                  />
+                  <select
+                    value={targetSizeUnit}
+                    onChange={(e) => setTargetSizeUnit(e.target.value as "KB" | "MB")}
+                    className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="KB">KB</option>
+                    <option value="MB">MB</option>
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Specify the desired file size after compression
+                </p>
+              </div>
+            )}
           </div>
         )}
 

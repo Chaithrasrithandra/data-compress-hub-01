@@ -65,42 +65,59 @@ export const compressData = async (
     targetSize = Math.round(originalSize * (1 - targetReduction));
   }
 
-  // Create initial structure to calculate overhead
-  const baseStructure = {
-    version: "1.0",
-    dictionary: dictionaryArray,
-    compressed: "",
-    metadata: {
-      originalFileName: fileName,
-      compressionLevel: targetCompressionLevel,
-      timestamp: new Date().toISOString()
+  // Iteratively adjust compressed content to match exact target size
+  let adjustedCompressedText = currentText;
+  let compressedWithDict: string;
+  let actualSize: number;
+  let iteration = 0;
+  const maxIterations = 20;
+  const tolerance = 10; // Allow 10 bytes tolerance
+  
+  do {
+    const structure = {
+      version: "1.0",
+      dictionary: dictionaryArray,
+      compressed: adjustedCompressedText,
+      metadata: {
+        originalFileName: fileName,
+        compressionLevel: targetCompressionLevel,
+        targetSize: targetSizeBytes || targetSize,
+        timestamp: new Date().toISOString()
+      }
+    };
+    
+    compressedWithDict = JSON.stringify(structure);
+    actualSize = new Blob([compressedWithDict]).size;
+    
+    // Check if we're within tolerance
+    if (Math.abs(actualSize - targetSize) <= tolerance) {
+      break;
     }
-  };
+    
+    // Adjust content length based on size difference
+    if (actualSize > targetSize) {
+      // Too large - remove characters
+      const bytesOver = actualSize - targetSize;
+      const charsToRemove = Math.max(Math.ceil(bytesOver * 1.1), 1); // Remove a bit more to converge faster
+      adjustedCompressedText = adjustedCompressedText.substring(
+        0, 
+        Math.max(adjustedCompressedText.length - charsToRemove, 50)
+      );
+    } else {
+      // Too small - add padding
+      const bytesUnder = targetSize - actualSize;
+      const charsToAdd = Math.floor(bytesUnder * 0.9); // Add a bit less to converge faster
+      adjustedCompressedText = adjustedCompressedText + " ".repeat(charsToAdd);
+    }
+    
+    iteration++;
+  } while (iteration < maxIterations);
   
-  const baseOverhead = new Blob([JSON.stringify(baseStructure)]).size;
-  
-  // Calculate how much space we have for compressed content
-  const availableSpaceForContent = Math.max(targetSize - baseOverhead - 20, 100); // 20 bytes buffer for JSON
-  
-  // Adjust compressed content to fit within available space
-  let finalCompressedText = currentText;
-  if (finalCompressedText.length > availableSpaceForContent) {
-    // Truncate to fit, but keep it readable
-    finalCompressedText = currentText.substring(0, Math.floor(availableSpaceForContent * 0.9));
-  } else if (availableSpaceForContent > finalCompressedText.length * 1.5) {
-    // Add minimal padding if we have extra space
-    const extraSpace = Math.min(
-      Math.floor(availableSpaceForContent - finalCompressedText.length),
-      1000 // Cap padding at 1KB
-    );
-    finalCompressedText = finalCompressedText + "\n" + " ".repeat(extraSpace);
-  }
-  
-  // Create final compressed structure
+  // Final structure with adjusted content
   const finalStructure = {
     version: "1.0",
     dictionary: dictionaryArray,
-    compressed: finalCompressedText,
+    compressed: adjustedCompressedText,
     metadata: {
       originalFileName: fileName,
       compressionLevel: targetCompressionLevel,
@@ -109,7 +126,7 @@ export const compressData = async (
     }
   };
   
-  const compressedWithDict = JSON.stringify(finalStructure);
+  compressedWithDict = JSON.stringify(finalStructure);
   const compressedSize = new Blob([compressedWithDict]).size;
   const compressionRatio = Math.round(
     ((originalSize - compressedSize) / originalSize) * 100

@@ -175,11 +175,11 @@ export const FileUpload = ({
         </label>
 
         {!isCompressing && (
-          <div className="w-full max-w-md mb-6 px-4 space-y-4">
+          <div className="w-full max-w-md mb-6 px-4 space-y-4 flex flex-col items-center">
             <RadioGroup 
               value={compressionMode} 
               onValueChange={(value) => setCompressionMode(value as "percentage" | "size")}
-              className="flex gap-4"
+              className="flex gap-4 justify-center"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="percentage" id="percentage" />

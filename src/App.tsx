@@ -10,6 +10,7 @@ import Support from "./pages/Support";
 import Dashboard from "./pages/Dashboard";
 import Create from "./pages/Create";
 import Tools from "./pages/Tools";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import LiveChat from "./components/LiveChat";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create" element={<Create />} />
           <Route path="/tools" element={<Tools />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

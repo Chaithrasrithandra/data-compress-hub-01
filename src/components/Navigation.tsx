@@ -125,6 +125,12 @@ export const Navigation = ({ user, onLogout, onOpenAuth }: NavigationProps) => {
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={onLogout} className="cursor-pointer">
                       Logout
                     </DropdownMenuItem>

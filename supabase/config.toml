@@ -1,1 +1,7 @@
 project_id = "akygveksmhbkczzxismn"
+
+[functions.compression-assistant]
+verify_jwt = false
+
+[functions.compress-file]
+verify_jwt = false

@@ -29,6 +29,8 @@ export interface CompressionData {
   compressedContent: string;
   originalContent: string;
   fileName: string;
+  fileType?: 'image' | 'video' | 'audio' | 'document' | 'text' | 'archive' | 'other';
+  mimeType?: string;
 }
 
 const Index = () => {

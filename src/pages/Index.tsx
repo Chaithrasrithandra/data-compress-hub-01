@@ -34,7 +34,7 @@ export interface CompressionData {
 }
 
 const Index = () => {
-  const [compressionData, setCompressionData] = useState<CompressionData | null>(null);
+  const [compressionResults, setCompressionResults] = useState<CompressionData[]>([]);
   const [isCompressing, setIsCompressing] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [historyKey, setHistoryKey] = useState(0);
@@ -61,14 +61,13 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleCompressionComplete = async (data: CompressionData) => {
-    setCompressionData(data);
+  const handleCompressionComplete = async (results: CompressionData[]) => {
+    setCompressionResults(results);
     setIsCompressing(false);
 
-    // Save to history only if user is logged in
     if (user) {
       try {
-        const { error } = await supabase.from("compression_history").insert({
+        const inserts = results.map((data) => ({
           user_id: user.id,
           file_name: data.fileName,
           original_size: data.originalSize,
@@ -78,27 +77,25 @@ const Index = () => {
           compression_time: data.compressionTime,
           compressed_content: data.compressedContent,
           original_content: data.originalContent,
-        });
+        }));
 
+        const { error } = await supabase.from("compression_history").insert(inserts);
         if (error) throw error;
 
-        // Refresh history
         setHistoryKey((prev) => prev + 1);
-
         toast({
           title: "Success",
-          description: "Compression saved to history",
+          description: `${results.length} file${results.length > 1 ? "s" : ""} saved to history`,
         });
       } catch (error) {
         console.error("Error saving to history:", error);
         toast({
           title: "Error",
-          description: "Failed to save compression to history. Please try again.",
+          description: "Failed to save compression to history.",
           variant: "destructive",
         });
       }
     } else {
-      // Show success message for non-authenticated users
       toast({
         title: "Compression Complete",
         description: "Sign up to save your compression history!",
@@ -350,14 +347,16 @@ const Index = () => {
               </section>
 
               {/* Results Section */}
-              {compressionData && (
+              {compressionResults.length > 0 && (
                 <>
-                  <section className="animate-fade-in">
-                    <CompressionResults data={compressionData} />
-                  </section>
+                  {compressionResults.map((data, index) => (
+                    <section key={index} className="animate-fade-in">
+                      <CompressionResults data={data} />
+                    </section>
+                  ))}
 
                   <section className="animate-fade-in">
-                    <AnalysisDashboard data={compressionData} />
+                    <AnalysisDashboard data={compressionResults[0]} />
                   </section>
                   
                   {user && (

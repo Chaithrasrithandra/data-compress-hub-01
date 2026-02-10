@@ -21,6 +21,31 @@ interface CompressionOptionsProps {
   onSettingsChange: (settings: CompressionSettings) => void;
 }
 
+const COMPRESSION_LEVELS = [
+  { label: 'Light', quality: 90, description: '~20% reduction' },
+  { label: 'Medium', quality: 70, description: '~40% reduction' },
+  { label: 'Heavy', quality: 50, description: '~50% reduction' },
+  { label: 'Maximum', quality: 20, description: '~70% reduction' },
+];
+
+const getCompressionLevel = (quality: number) => {
+  if (quality >= 80) return COMPRESSION_LEVELS[0];
+  if (quality >= 60) return COMPRESSION_LEVELS[1];
+  if (quality >= 35) return COMPRESSION_LEVELS[2];
+  return COMPRESSION_LEVELS[3];
+};
+
+const qualityToSlider = (quality: number): number => {
+  if (quality >= 80) return 0;
+  if (quality >= 60) return 1;
+  if (quality >= 35) return 2;
+  return 3;
+};
+
+const sliderToQuality = (value: number): number => {
+  return COMPRESSION_LEVELS[value].quality;
+};
+
 export const CompressionOptions = ({
   fileType,
   settings,
@@ -30,13 +55,7 @@ export const CompressionOptions = ({
     onSettingsChange({ ...settings, ...partial });
   };
 
-  const getQualityLabel = (quality: number) => {
-    if (quality >= 80) return 'High Quality';
-    if (quality >= 60) return 'Good Quality';
-    if (quality >= 40) return 'Medium Quality';
-    if (quality >= 20) return 'Low Quality';
-    return 'Minimum Quality';
-  };
+  const currentLevel = getCompressionLevel(settings.quality);
 
   return (
     <div className="space-y-6 w-full max-w-md">
@@ -44,41 +63,41 @@ export const CompressionOptions = ({
       <RadioGroup
         value={settings.mode}
         onValueChange={(value) => updateSettings({ mode: value as 'quality' | 'size' })}
-        className="flex gap-4 justify-center"
+        className="flex gap-6 justify-center"
       >
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="quality" id="quality" />
-          <Label htmlFor="quality" className="cursor-pointer">
-            Quality Level
+          <Label htmlFor="quality" className="cursor-pointer font-medium">
+            Compression Level
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="size" id="size" />
-          <Label htmlFor="size" className="cursor-pointer">
+          <Label htmlFor="size" className="cursor-pointer font-medium">
             Target Size
           </Label>
         </div>
       </RadioGroup>
 
-      {/* Quality/Size Settings */}
+      {/* Quality Slider or Target Size */}
       {settings.mode === 'quality' ? (
-        <div className="space-y-3">
-          <Label className="text-sm font-medium block">
-            {getQualityLabel(settings.quality)}
-            <span className="text-muted-foreground ml-2">({settings.quality}%)</span>
-          </Label>
+        <div className="space-y-4">
+          <p className="text-center text-sm font-medium">
+            Compression Target: <span className="font-bold">{currentLevel.label}</span>
+            <span className="text-muted-foreground ml-2">({currentLevel.description})</span>
+          </p>
           <Slider
-            value={[settings.quality]}
-            onValueChange={(value) => updateSettings({ quality: value[0] })}
-            min={10}
-            max={100}
-            step={5}
+            value={[qualityToSlider(settings.quality)]}
+            onValueChange={(value) => updateSettings({ quality: sliderToQuality(value[0]) })}
+            min={0}
+            max={3}
+            step={1}
             className="w-full"
           />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Smallest</span>
-            <span>Balanced</span>
-            <span>Best Quality</span>
+          <div className="flex justify-between text-xs text-muted-foreground px-1">
+            {COMPRESSION_LEVELS.map((level) => (
+              <span key={level.label}>{level.label}</span>
+            ))}
           </div>
         </div>
       ) : (
@@ -128,9 +147,6 @@ export const CompressionOptions = ({
               <SelectItem value="png">PNG (Lossless)</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-muted-foreground">
-            WebP offers the best file size reduction while maintaining quality
-          </p>
         </div>
       )}
 

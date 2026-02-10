@@ -9,7 +9,7 @@ import type { CompressionData } from "@/pages/Index";
 
 const Create = () => {
   const [user, setUser] = useState<any>(null);
-  const [compressionData, setCompressionData] = useState<CompressionData | null>(null);
+  const [compressionResults, setCompressionResults] = useState<CompressionData[]>([]);
   const [isCompressing, setIsCompressing] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,12 +40,12 @@ const Create = () => {
     navigate("/");
   };
 
-  const handleCompressionComplete = async (data: CompressionData) => {
-    setCompressionData(data);
+  const handleCompressionComplete = async (results: CompressionData[]) => {
+    setCompressionResults(results);
     setIsCompressing(false);
 
     if (user) {
-      const { error } = await supabase.from("compression_history").insert({
+      const inserts = results.map((data) => ({
         user_id: user.id,
         file_name: data.fileName,
         original_size: data.originalSize,
@@ -55,14 +55,16 @@ const Create = () => {
         compression_time: data.compressionTime,
         original_content: data.originalContent,
         compressed_content: data.compressedContent,
-      });
+      }));
+
+      const { error } = await supabase.from("compression_history").insert(inserts);
 
       if (error) {
         console.error("Error saving compression history:", error);
       } else {
         toast({
           title: "Success!",
-          description: "Compression completed and saved to history.",
+          description: `${results.length} file${results.length > 1 ? "s" : ""} compressed and saved.`,
         });
       }
     }
@@ -87,9 +89,11 @@ const Create = () => {
             setIsCompressing={setIsCompressing}
           />
           
-          {compressionData && (
-            <div className="mt-8">
-              <CompressionResults data={compressionData} />
+          {compressionResults.length > 0 && (
+            <div className="mt-8 space-y-6">
+              {compressionResults.map((data, index) => (
+                <CompressionResults key={index} data={data} />
+              ))}
             </div>
           )}
         </div>
